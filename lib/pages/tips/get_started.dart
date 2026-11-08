@@ -15,7 +15,7 @@ class _GetStartedState extends State<GetStarted> {
   bool _isArabic = false;
 
   void _navigateToNext() {
-    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+    Navigator.of(context).pushReplacementNamed(AppRoutes.tips);
   }
 
   @override

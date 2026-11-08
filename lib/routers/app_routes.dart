@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant/pages/home/home_screen.dart';
 import 'package:restaurant/pages/splash/splash_screen.dart';
 import 'package:restaurant/pages/tips/get_started.dart';
 import 'package:restaurant/pages/tips/tips.dart';
@@ -24,11 +25,20 @@ class AppRoutes {
           transitionDuration: const Duration(milliseconds: 400),
         );
 
-      case home:
       case tips:
         return PageRouteBuilder(
           settings: setting,
           pageBuilder: (_, animation, secondaryAnimation) => const Tips(),
+          transitionsBuilder: (_, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 350),
+        );
+
+      case home:
+        return PageRouteBuilder(
+          settings: setting,
+          pageBuilder: (_, animation, secondaryAnimation) => const HomeScreen(),
           transitionsBuilder: (_, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
