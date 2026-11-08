@@ -1,30 +1,36 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:restaurant/core/constant.dart';
 import 'package:restaurant/main.dart';
+import 'package:restaurant/pages/tips/get_started.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('App launches with splash screen and brand info',
+      (WidgetTester tester) async {
     await tester.pumpWidget(const RestaurantApp());
+    expect(find.text(AppConstants.appName), findsOneWidget);
+    expect(find.text(AppConstants.appNameEn), findsOneWidget);
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  testWidgets('GetStarted screen renders title, button, and image',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: GetStarted(),
+      ),
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Initial state: English matching the design image
+    expect(find.text('Happy Meals'), findsOneWidget);
+    expect(find.text('Get Started'), findsOneWidget);
+    expect(find.byType(Image), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Tap language toggle to switch to Arabic
+    await tester.tap(find.text('عربي'));
+    await tester.pumpAndSettle();
+
+    // Verify Arabic content is displayed
+    expect(find.text('وجبات سعيدة'), findsOneWidget);
+    expect(find.text('ابدأ الآن'), findsOneWidget);
   });
 }
