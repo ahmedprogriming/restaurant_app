@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant/core/theam_color.dart';
+import 'package:restaurant/widgets/custom_snackbar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -458,12 +459,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 8),
                             InkWell(
                               onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('تمت إضافة ${meal['title']} للسلة'),
-                                    duration: const Duration(seconds: 1),
-                                    backgroundColor: AppColor.primary,
-                                  ),
+                                showAppSnackbar(
+                                  context,
+                                  'تمت إضافة ${meal['title']} للسلة ✓',
+                                  type: SnackBarType.success,
+                                  duration: const Duration(seconds: 2),
                                 );
                               },
                               borderRadius: BorderRadius.circular(10),

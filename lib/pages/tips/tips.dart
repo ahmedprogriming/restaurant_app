@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:restaurant/core/theam_color.dart';
 import 'package:restaurant/routers/app_routes.dart';
+import 'package:restaurant/widgets/custom_snackbar.dart';
 
 /// Data model representing a single onboarding tip/screen
 class TipItem {
@@ -87,20 +88,13 @@ class _TipsState extends State<Tips> {
   }
 
   void _showActionFeedback(String actionName) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _isArabic
-              ? 'تم الضغط على: $actionName'
-              : 'Pressed: $actionName',
-        ),
-        duration: const Duration(seconds: 1),
-        backgroundColor: AppColor.primary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
+    showAppSnackbar(
+      context,
+      _isArabic
+          ? 'تم الضغط على: $actionName'
+          : 'Pressed: $actionName',
+      type: SnackBarType.info,
+      duration: const Duration(seconds: 2),
     );
     _navigateToHome();
   }
