@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant/pages/auth/forgot_password_screen.dart';
 import 'package:restaurant/pages/auth/login_screen.dart';
 import 'package:restaurant/pages/auth/sign_up_screen.dart';
 import 'package:restaurant/pages/home/home_screen.dart';
@@ -14,6 +15,7 @@ class AppRoutes {
   static const String signUp = '/sign-up';
   static const String register = '/register';
   static const String login = '/login';
+  static const String forgotPassword = '/forgot-password';
 
   static Route<dynamic> onGenerateRoute(RouteSettings setting) {
     switch (setting.name) {
@@ -55,6 +57,18 @@ class AppRoutes {
         return PageRouteBuilder(
           settings: setting,
           pageBuilder: (_, animation, secondaryAnimation) => const LoginScreen(),
+          transitionsBuilder: (_, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 350),
+        );
+
+      case forgotPassword:
+        final isArabic = setting.arguments is bool ? (setting.arguments as bool) : false;
+        return PageRouteBuilder(
+          settings: setting,
+          pageBuilder: (_, animation, secondaryAnimation) =>
+              ForgotPasswordScreen(initialIsArabic: isArabic),
           transitionsBuilder: (_, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },

@@ -14,6 +14,7 @@ class CustomRoundedTextField extends StatelessWidget {
   final void Function(String)? onFieldSubmitted;
   final FocusNode? focusNode;
   final bool enabled;
+  final bool autofocus;
 
   const CustomRoundedTextField({
     super.key,
@@ -28,6 +29,7 @@ class CustomRoundedTextField extends StatelessWidget {
     this.onFieldSubmitted,
     this.focusNode,
     this.enabled = true,
+    this.autofocus = false,
   });
 
   @override
@@ -48,6 +50,7 @@ class CustomRoundedTextField extends StatelessWidget {
         textInputAction: textInputAction,
         obscureText: obscureText,
         enabled: enabled,
+        autofocus: autofocus,
         onFieldSubmitted: onFieldSubmitted,
         validator: validator,
         style: const TextStyle(

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:restaurant/core/theam_color.dart';
 import 'package:restaurant/routers/app_routes.dart';
+import 'package:restaurant/widgets/custom_back_button.dart';
+import 'package:restaurant/widgets/custom_primary_button.dart';
 import 'package:restaurant/widgets/custom_rounded_text_field.dart';
 import 'package:restaurant/widgets/custom_snackbar.dart';
 
@@ -278,22 +280,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Back button (<) matching the reference design
-          InkWell(
-            onTap: () => Navigator.of(context).maybePop(),
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              width: 40,
-              height: 40,
-              alignment: Alignment.center,
-              child: Icon(
-                _isArabic
-                    ? Icons.arrow_forward_ios_rounded
-                    : Icons.chevron_left_rounded,
-                size: 28,
-                color: AppColor.textDark,
-              ),
-            ),
+          // Reusable back button (<) matching the reference design
+          CustomBackButton(
+            isRtl: _isArabic,
+            onPressed: () => Navigator.of(context).maybePop(),
           ),
 
           // Utility Actions: Language switcher & Mockup Button Text Switcher
@@ -526,55 +516,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   /// Primary Action Button (Vibrant Coral Red pill button)
   Widget _buildSubmitButton() {
-    // Resolving button label:
-    // If _useMockupButtonText is true, shows "Log in" as displayed on the screenshot mockup.
-    // Otherwise shows "Sign up" (or "إنشاء حساب" in Arabic).
     final String buttonLabel = _useMockupButtonText
         ? (_isArabic ? 'تسجيل الدخول' : 'Log in')
         : (_isArabic ? 'إنشاء حساب' : 'Sign up');
 
-    return Container(
-      width: double.infinity,
+    return CustomPrimaryButton(
+      text: buttonLabel,
+      isLoading: _isLoading,
       height: 54,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.primary.withValues(alpha: 0.32),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : _handleSignUp,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColor.primary,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: AppColor.primary.withValues(alpha: 0.6),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
-          ),
-        ),
-        child: _isLoading
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : Text(
-                buttonLabel,
-                style: const TextStyle(
-                  fontSize: 16.5,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.2,
-                ),
-              ),
-      ),
+      onPressed: _handleSignUp,
     );
   }
 

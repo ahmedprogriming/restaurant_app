@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:restaurant/core/theam_color.dart';
 import 'package:restaurant/routers/app_routes.dart';
+import 'package:restaurant/widgets/custom_back_button.dart';
+import 'package:restaurant/widgets/custom_primary_button.dart';
 import 'package:restaurant/widgets/custom_snackbar.dart';
 
 /// Clean and modern Login Screen matching the exact reference design mockup.
@@ -93,192 +95,11 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.of(context).pushNamed(AppRoutes.signUp);
   }
 
-  // Show "Forgot Password" modal bottom sheet
-  void _showForgotPasswordBottomSheet() {
-    final resetEmailController =
-        TextEditingController(text: _emailController.text);
-    final resetFormKey = GlobalKey<FormState>();
-    bool isSubmittingReset = false;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (sheetContext) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Directionality(
-              textDirection: _isArabic ? TextDirection.rtl : TextDirection.ltr,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  24,
-                  20,
-                  24,
-                  MediaQuery.of(context).viewInsets.bottom +
-                      MediaQuery.of(context).padding.bottom +
-                      24,
-                ),
-                child: Form(
-                  key: resetFormKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Drag handle
-                      Center(
-                        child: Container(
-                          width: 44,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE2E4E8),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Sheet Title
-                      Text(
-                        _isArabic ? 'استعادة كلمة المرور' : 'Reset Password',
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: AppColor.textDark,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-
-                      // Sheet Subtitle
-                      Text(
-                        _isArabic
-                            ? 'أدخل بريدك الإلكتروني المسجل وسنرسل لك رابطاً لإعادة تعيين كلمة المرور الخاصة بك.'
-                            : 'Enter your registered email address and we will send you a link to reset your password.',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          height: 1.5,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                      const SizedBox(height: 22),
-
-                      // Reset Email Input
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF7F8FA),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: const Color(0xFFEDEEF2),
-                            width: 1.0,
-                          ),
-                        ),
-                        child: TextFormField(
-                          controller: resetEmailController,
-                          keyboardType: TextInputType.emailAddress,
-                          autofocus: true,
-                          style: const TextStyle(
-                            color: AppColor.textDark,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: _isArabic ? 'البريد الإلكتروني' : 'Email',
-                            hintStyle: const TextStyle(
-                              color: Color(0xFFB0B7C3),
-                              fontSize: 15,
-                            ),
-                            prefixIcon: const Icon(
-                              Icons.mail_outline_rounded,
-                              color: Color(0xFF9E9E9E),
-                              size: 22,
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 16,
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return _isArabic
-                                  ? 'يرجى إدخال البريد الإلكتروني'
-                                  : 'Please enter your email';
-                            }
-                            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                .hasMatch(value.trim())) {
-                              return _isArabic
-                                  ? 'صيغة البريد غير صالحة'
-                                  : 'Invalid email address';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 22),
-
-                      // Submit Reset Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: isSubmittingReset
-                              ? null
-                              : () async {
-                                  if (!resetFormKey.currentState!.validate()) {
-                                    return;
-                                  }
-                                  setModalState(() => isSubmittingReset = true);
-                                  await Future.delayed(
-                                    const Duration(milliseconds: 900),
-                                  );
-                                  if (!sheetContext.mounted) return;
-                                  Navigator.of(sheetContext).pop();
-                                  if (!mounted) return;
-                                  showAppSnackbar(
-                                    context,
-                                    _isArabic
-                                        ? 'تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني'
-                                        : 'Password reset link sent to your email',
-                                    type: SnackBarType.success,
-                                  );
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColor.primary,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                          ),
-                          child: isSubmittingReset
-                              ? const SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : Text(
-                                  _isArabic ? 'إرسال الرابط' : 'Send Reset Link',
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
+  // Navigate to Forgot Password screen
+  void _navigateToForgotPassword() {
+    Navigator.of(context).pushNamed(
+      AppRoutes.forgotPassword,
+      arguments: _isArabic,
     );
   }
 
@@ -366,22 +187,10 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Back button matching the reference mockup
-          InkWell(
-            onTap: () => Navigator.of(context).maybePop(),
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              width: 42,
-              height: 42,
-              alignment: Alignment.center,
-              child: Icon(
-                _isArabic
-                    ? Icons.arrow_forward_ios_rounded
-                    : Icons.chevron_left_rounded,
-                size: 28,
-                color: AppColor.textDark,
-              ),
-            ),
+          // Reusable back button matching the reference mockup
+          CustomBackButton(
+            isRtl: _isArabic,
+            onPressed: () => Navigator.of(context).maybePop(),
           ),
 
           // Subtle Language toggle chip (English / العربية)
@@ -567,7 +376,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: 18.0),
                 child: GestureDetector(
-                  onTap: _showForgotPasswordBottomSheet,
+                  onTap: _navigateToForgotPassword,
                   behavior: HitTestBehavior.opaque,
                   child: Text(
                     _isArabic ? 'نسيت؟' : 'Forgot?',
@@ -588,48 +397,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   /// 4. Primary Red/Coral "Log in" pill button matching the mockup
   Widget _buildLoginButton() {
-    return Container(
-      width: double.infinity,
-      height: 52,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(26),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x59F55B61),
-            blurRadius: 18,
-            offset: Offset(0, 7),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : _handleLogin,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColor.primary,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(26),
-          ),
-          padding: EdgeInsets.zero,
-        ),
-        child: _isLoading
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.4,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : Text(
-                _isArabic ? 'تسجيل الدخول' : 'Log in',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.2,
-                ),
-              ),
-      ),
+    return CustomPrimaryButton(
+      text: _isArabic ? 'تسجيل الدخول' : 'Log in',
+      isLoading: _isLoading,
+      onPressed: _handleLogin,
     );
   }
 

@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:restaurant/core/constant.dart';
 import 'package:restaurant/main.dart';
+import 'package:restaurant/pages/auth/forgot_password_screen.dart';
 import 'package:restaurant/pages/auth/sign_up_screen.dart';
 import 'package:restaurant/pages/tips/get_started.dart';
 import 'package:restaurant/pages/tips/tips.dart';
+import 'package:restaurant/widgets/custom_back_button.dart';
+import 'package:restaurant/widgets/custom_primary_button.dart';
+import 'package:restaurant/widgets/custom_rounded_text_field.dart';
 
 void main() {
   testWidgets('App launches with splash screen and brand info',
@@ -99,5 +103,59 @@ void main() {
     expect(find.text('كلمة المرور'), findsOneWidget);
     expect(find.text('رقم الهاتف'), findsOneWidget);
     expect(find.text('إنشاء حساب'), findsOneWidget);
+  });
+
+  testWidgets('ForgotPassword screen matches reference mockup and reuses components',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: ForgotPasswordScreen(),
+      ),
+    );
+
+    // Title matching the image
+    expect(find.text('Forgot password'), findsOneWidget);
+
+    // Subtitle matching the image
+    expect(
+      find.text(
+        'Please enter your email to receive a link to create a new password via email.',
+      ),
+      findsOneWidget,
+    );
+
+    // Email field matching the image
+    expect(find.text('Email'), findsOneWidget);
+
+    // Send button matching the image
+    expect(find.text('Send'), findsOneWidget);
+
+    // Check back button exists
+    expect(find.byType(CustomBackButton), findsOneWidget);
+
+    // Check reusable primary button exists
+    expect(find.byType(CustomPrimaryButton), findsOneWidget);
+
+    // Check reusable text field exists
+    expect(find.byType(CustomRoundedTextField), findsOneWidget);
+
+    // Tap Send with empty field - shows validation error
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+    expect(find.text('Please enter your email'), findsOneWidget);
+
+    // Enter invalid email
+    await tester.enterText(find.byType(TextFormField), 'invalid-email');
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+    expect(find.text('Please enter a valid email address'), findsOneWidget);
+
+    // Switch to Arabic
+    await tester.tap(find.text('عربي'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('نسيت كلمة المرور'), findsOneWidget);
+    expect(find.text('إرسال'), findsOneWidget);
+    expect(find.text('البريد الإلكتروني'), findsOneWidget);
   });
 }
