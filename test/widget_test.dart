@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:restaurant/core/constant.dart';
 import 'package:restaurant/main.dart';
+import 'package:restaurant/pages/auth/sign_up_screen.dart';
 import 'package:restaurant/pages/tips/get_started.dart';
 import 'package:restaurant/pages/tips/tips.dart';
 
@@ -62,5 +63,41 @@ void main() {
 
     // Verify slide 3 elements
     expect(find.text('Live Tracking'), findsOneWidget);
+  });
+
+  testWidgets('SignUp screen renders form fields matching mockup',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SignUpScreen(),
+      ),
+    );
+
+    // Title
+    expect(find.text('Create your\naccount'), findsOneWidget);
+
+    // 4 Form fields hint texts
+    expect(find.text('Username'), findsOneWidget);
+    expect(find.text('Email'), findsOneWidget);
+    expect(find.text('Password'), findsOneWidget);
+    expect(find.text('Phone'), findsOneWidget);
+
+    // Submit button
+    expect(find.text('Sign up'), findsOneWidget);
+
+    // Bottom prompt
+    expect(find.text('Already an account? '), findsOneWidget);
+    expect(find.text('Log in'), findsOneWidget);
+
+    // Language switch to Arabic
+    await tester.tap(find.text('عربي'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('إنشاء\nحسابك'), findsOneWidget);
+    expect(find.text('اسم المستخدم'), findsOneWidget);
+    expect(find.text('البريد الإلكتروني'), findsOneWidget);
+    expect(find.text('كلمة المرور'), findsOneWidget);
+    expect(find.text('رقم الهاتف'), findsOneWidget);
+    expect(find.text('إنشاء حساب'), findsOneWidget);
   });
 }

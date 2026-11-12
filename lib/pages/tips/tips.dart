@@ -316,9 +316,9 @@ class _TipsState extends State<Tips> {
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              onPressed: () => _showActionFeedback(
-                _isArabic ? 'إنشاء حساب' : 'Create Account',
-              ),
+              onPressed: () {
+                Navigator.of(context).pushNamed(AppRoutes.signUp);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColor.primary,
                 foregroundColor: Colors.white,

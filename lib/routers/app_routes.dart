@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant/pages/auth/sign_up_screen.dart';
 import 'package:restaurant/pages/home/home_screen.dart';
 import 'package:restaurant/pages/splash/splash_screen.dart';
 import 'package:restaurant/pages/tips/get_started.dart';
@@ -9,6 +10,8 @@ class AppRoutes {
   static const String getStarted = '/get-started';
   static const String home = '/home';
   static const String tips = '/tips';
+  static const String signUp = '/sign-up';
+  static const String register = '/register';
 
   static Route<dynamic> onGenerateRoute(RouteSettings setting) {
     switch (setting.name) {
@@ -29,6 +32,17 @@ class AppRoutes {
         return PageRouteBuilder(
           settings: setting,
           pageBuilder: (_, animation, secondaryAnimation) => const Tips(),
+          transitionsBuilder: (_, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 350),
+        );
+
+      case signUp:
+      case register:
+        return PageRouteBuilder(
+          settings: setting,
+          pageBuilder: (_, animation, secondaryAnimation) => const SignUpScreen(),
           transitionsBuilder: (_, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
