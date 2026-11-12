@@ -105,14 +105,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   // Navigate to login
   void _navigateToLogin() {
-    showAppSnackbar(
-      context,
-      _isArabic
-          ? 'الانتقال إلى صفحة تسجيل الدخول...'
-          : 'Navigating to Log in...',
-      type: SnackBarType.info,
-      duration: const Duration(seconds: 2),
-    );
+    Navigator.of(context).pushNamed(AppRoutes.login);
   }
 
   // Show terms & conditions bottom sheet
