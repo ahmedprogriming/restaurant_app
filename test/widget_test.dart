@@ -4,11 +4,17 @@ import 'package:restaurant/core/constant.dart';
 import 'package:restaurant/main.dart';
 import 'package:restaurant/pages/auth/forgot_password_screen.dart';
 import 'package:restaurant/pages/auth/sign_up_screen.dart';
+import 'package:restaurant/pages/home/home_screen.dart';
 import 'package:restaurant/pages/tips/get_started.dart';
 import 'package:restaurant/pages/tips/tips.dart';
+import 'package:restaurant/widgets/category_card.dart';
 import 'package:restaurant/widgets/custom_back_button.dart';
 import 'package:restaurant/widgets/custom_primary_button.dart';
 import 'package:restaurant/widgets/custom_rounded_text_field.dart';
+import 'package:restaurant/widgets/custom_search_bar.dart';
+import 'package:restaurant/widgets/delivery_location_header.dart';
+import 'package:restaurant/widgets/home_bottom_nav_bar.dart';
+import 'package:restaurant/widgets/restaurant_card.dart';
 
 void main() {
   testWidgets('App launches with splash screen and brand info',
@@ -157,5 +163,61 @@ void main() {
     expect(find.text('نسيت كلمة المرور'), findsOneWidget);
     expect(find.text('إرسال'), findsOneWidget);
     expect(find.text('البريد الإلكتروني'), findsOneWidget);
+  });
+
+  testWidgets('HomeScreen matches reference mockup and reuses modular widgets',
+      (WidgetTester tester) async {
+    // Set a phone screen size so all widgets layout properly
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: HomeScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Verify reusable widgets exist
+    expect(find.byType(DeliveryLocationHeader), findsOneWidget);
+    expect(find.byType(CustomSearchBar), findsOneWidget);
+    expect(find.byType(CategoryCard), findsWidgets);
+    expect(find.byType(RestaurantCard), findsWidgets);
+    expect(find.byType(HomeBottomNavBar), findsOneWidget);
+
+    // Verify header elements matching mockup
+    expect(find.text('Delivering to'), findsOneWidget);
+    expect(find.text('Current location'), findsOneWidget);
+
+    // Verify search bar hint
+    expect(find.text('Search foods'), findsOneWidget);
+
+    // Verify categories matching mockup
+    expect(find.text('Offers'), findsWidgets);
+    expect(find.text('Burgers'), findsOneWidget);
+    expect(find.text('Asian'), findsOneWidget);
+    expect(find.text('Pizza'), findsOneWidget);
+
+    // Verify restaurant card matching mockup
+    expect(find.text('Hollywood Starz Cafe'), findsOneWidget);
+    expect(find.text('20 - 30 mins'), findsWidgets);
+
+    // Verify bottom nav items matching mockup
+    expect(find.text('Restaurants'), findsOneWidget);
+    expect(find.text('Account'), findsOneWidget);
+
+    // Test language switch to Arabic
+    await tester.tap(find.text('عربي'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('التوصيل إلى'), findsOneWidget);
+    expect(find.text('الموقع الحالي'), findsOneWidget);
+    expect(find.text('ابحث عن الوجبات أو المطاعم'), findsOneWidget);
+    expect(find.text('العروض'), findsWidgets);
+    expect(find.text('المطاعم'), findsOneWidget);
   });
 }
