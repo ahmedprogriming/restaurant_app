@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:restaurant/core/app_language.dart';
 import 'package:restaurant/core/theam_color.dart';
 import 'package:restaurant/routers/app_routes.dart';
 import 'package:restaurant/widgets/custom_snackbar.dart';
@@ -31,7 +32,7 @@ class Tips extends StatefulWidget {
 class _TipsState extends State<Tips> {
   late final PageController _pageController;
   int _currentPage = 0;
-  bool _isArabic = false;
+  bool get _isArabic => AppLanguage.isArabic;
 
   final List<TipItem> _tips = const [
     TipItem(
@@ -101,123 +102,89 @@ class _TipsState extends State<Tips> {
 
   @override
   Widget build(BuildContext context) {
-    final textDirection = _isArabic ? TextDirection.rtl : TextDirection.ltr;
+    return ListenableBuilder(
+      listenable: AppLanguage.currentLocale,
+      builder: (context, _) {
+        final textDirection = _isArabic ? TextDirection.rtl : TextDirection.ltr;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.white,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: Directionality(
-          textDirection: textDirection,
-          child: SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return Column(
-                  children: [
-                    // Top Bar: Language toggle (leading) & Log in (trailing)
-                    _buildTopBar(),
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light,
+            systemNavigationBarColor: Colors.white,
+            systemNavigationBarIconBrightness: Brightness.dark,
+          ),
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            body: Directionality(
+              textDirection: textDirection,
+              child: SafeArea(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Column(
+                      children: [
+                        // Top Bar: Language toggle (leading) & Log in (trailing)
+                        _buildTopBar(),
 
-                    // PageView with Tips Content (Illustration + Title + Subtitle + Dots)
-                    Expanded(
-                      child: PageView.builder(
-                        controller: _pageController,
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: _tips.length,
-                        onPageChanged: _onPageChanged,
-                        itemBuilder: (context, index) {
-                          final tip = _tips[index];
-                          return _buildTipSlide(tip, constraints.maxHeight);
-                        },
-                      ),
-                    ),
+                        // PageView with Tips Content (Illustration + Title + Subtitle + Dots)
+                        Expanded(
+                          child: PageView.builder(
+                            controller: _pageController,
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: _tips.length,
+                            onPageChanged: _onPageChanged,
+                            itemBuilder: (context, index) {
+                              final tip = _tips[index];
+                              return _buildTipSlide(tip, constraints.maxHeight);
+                            },
+                          ),
+                        ),
 
-                    // Dot indicators (placed right beneath the text with smooth sync)
-                    _buildPageIndicator(),
+                        // Dot indicators (placed right beneath the text with smooth sync)
+                        _buildPageIndicator(),
 
-                    const SizedBox(height: 28),
+                        const SizedBox(height: 28),
 
-                    // Bottom Action Buttons ("Create Account" & "Continue with Facebook")
-                    _buildBottomButtons(),
+                        // Bottom Action Buttons ("Create Account" & "Continue with Facebook")
+                        _buildBottomButtons(),
 
-                    const SizedBox(height: 16),
-                  ],
-                );
-              },
+                        const SizedBox(height: 16),
+                      ],
+                    );
+                  },
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  /// Top Bar with "Log in" action and language switch pill
+  /// Top Bar with "Log in" action matching the reference mockup
   Widget _buildTopBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Subtle language switcher to support Arabic / English
-          InkWell(
-            onTap: () {
-              setState(() {
-                _isArabic = !_isArabic;
-              });
-            },
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF4F5F8),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.language_rounded,
-                    size: 15,
-                    color: AppColor.textDark,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    _isArabic ? 'English' : 'عربي',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColor.textDark,
-                    ),
-                  ),
-                ],
-              ),
+      child: Align(
+        alignment: AlignmentDirectional.centerEnd,
+        child: TextButton(
+          onPressed: () => _navigateToHome(),
+          style: TextButton.styleFrom(
+            foregroundColor: AppColor.primary,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: Text(
+            _isArabic ? 'تسجيل الدخول' : 'Log in',
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: AppColor.primary,
             ),
           ),
-
-          // Log in Text Button (matches the screenshot in top right)
-          TextButton(
-            onPressed: () => _navigateToHome(),
-            style: TextButton.styleFrom(
-              foregroundColor: AppColor.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(
-              _isArabic ? 'تسجيل الدخول' : 'Log in',
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: AppColor.primary,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

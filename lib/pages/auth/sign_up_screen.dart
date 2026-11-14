@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:restaurant/core/app_language.dart';
 import 'package:restaurant/core/theam_color.dart';
 import 'package:restaurant/routers/app_routes.dart';
 import 'package:restaurant/widgets/custom_back_button.dart';
@@ -40,7 +41,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final FocusNode _phoneFocus = FocusNode();
 
   // State flags
-  late bool _isArabic;
+  bool get _isArabic => AppLanguage.isArabic;
   late bool _useMockupButtonText;
   bool _obscurePassword = true;
   bool _isLoading = false;
@@ -48,7 +49,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   void initState() {
     super.initState();
-    _isArabic = widget.initialIsArabic;
     _useMockupButtonText = widget.matchMockupButtonText;
   }
 
@@ -196,174 +196,98 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final textDirection = _isArabic ? TextDirection.rtl : TextDirection.ltr;
+    return ListenableBuilder(
+      listenable: AppLanguage.currentLocale,
+      builder: (context, _) {
+        final textDirection = _isArabic ? TextDirection.rtl : TextDirection.ltr;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.white,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: Directionality(
-          textDirection: textDirection,
-          child: SafeArea(
-            child: GestureDetector(
-              onTap: () => FocusScope.of(context).unfocus(),
-              behavior: HitTestBehavior.opaque,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 26.0),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight,
-                      ),
-                      child: IntrinsicHeight(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 1. Top Navigation Bar (Back Arrow + Optional Language Toggle)
-                            _buildTopBar(),
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light,
+            systemNavigationBarColor: Colors.white,
+            systemNavigationBarIconBrightness: Brightness.dark,
+          ),
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            body: Directionality(
+              textDirection: textDirection,
+              child: SafeArea(
+                child: GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  behavior: HitTestBehavior.opaque,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 26.0),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
+                          ),
+                          child: IntrinsicHeight(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // 1. Top Navigation Bar (Back Arrow)
+                                _buildTopBar(),
 
-                            const SizedBox(height: 20),
+                                const SizedBox(height: 20),
 
-                            // 2. Large Two-Line Title ("Create your\naccount")
-                            _buildTitle(),
+                                // 2. Large Two-Line Title ("Create your\naccount")
+                                _buildTitle(),
 
-                            const SizedBox(height: 32),
+                                const SizedBox(height: 32),
 
-                            // 3. Form with Rounded Input Fields
-                            _buildForm(),
+                                // 3. Form with Rounded Input Fields
+                                _buildForm(),
 
-                            const SizedBox(height: 28),
+                                const SizedBox(height: 28),
 
-                            // 4. Primary Red Action Button
-                            _buildSubmitButton(),
+                                // 4. Primary Red Action Button
+                                _buildSubmitButton(),
 
-                            const SizedBox(height: 18),
+                                const SizedBox(height: 18),
 
-                            // 5. Terms and Conditions text
-                            _buildTermsText(),
+                                // 5. Terms and Conditions text
+                                _buildTermsText(),
 
-                            // Flexible space before bottom prompt
-                            const Spacer(),
+                                // Flexible space before bottom prompt
+                                const Spacer(),
 
-                            const SizedBox(height: 24),
+                                const SizedBox(height: 24),
 
-                            // 6. Bottom "Already an account? Log in"
-                            _buildFooterPrompt(),
+                                // 6. Bottom "Already an account? Log in"
+                                _buildFooterPrompt(),
 
-                            const SizedBox(height: 16),
-                          ],
+                                const SizedBox(height: 16),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  );
-                },
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  /// Top Bar with minimal Back Chevron and subtle language/mockup switcher
+  /// Top Bar with minimal Back Chevron matching the reference design
   Widget _buildTopBar() {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Reusable back button (<) matching the reference design
-          CustomBackButton(
-            isRtl: _isArabic,
-            onPressed: () => Navigator.of(context).maybePop(),
-          ),
-
-          // Utility Actions: Language switcher & Mockup Button Text Switcher
-          Row(
-            children: [
-              // Switch button label ("Sign up" vs exact mockup "Log in")
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    _useMockupButtonText = !_useMockupButtonText;
-                  });
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _useMockupButtonText
-                        ? AppColor.primary.withValues(alpha: 0.1)
-                        : const Color(0xFFF4F5F8),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    _useMockupButtonText ? 'Mockup: Log in' : 'Standard: Sign up',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: _useMockupButtonText
-                          ? AppColor.primary
-                          : const Color(0xFF8D99AE),
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 8),
-
-              // Language toggle
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    _isArabic = !_isArabic;
-                  });
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF4F5F8),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.language_rounded,
-                        size: 14,
-                        color: AppColor.textDark,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        _isArabic ? 'English' : 'عربي',
-                        style: const TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w600,
-                          color: AppColor.textDark,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: CustomBackButton(
+          isRtl: _isArabic,
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
       ),
     );
   }

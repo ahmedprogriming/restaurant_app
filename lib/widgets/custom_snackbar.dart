@@ -10,6 +10,8 @@ void showAppSnackbar(
   String message, {
   SnackBarType type = SnackBarType.info,
   Duration duration = const Duration(seconds: 3),
+  String? actionLabel,
+  VoidCallback? onAction,
 }) {
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
@@ -97,6 +99,29 @@ void showAppSnackbar(
                 ),
               ),
             ),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  onAction();
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: borderColor,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  actionLabel,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: borderColor,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

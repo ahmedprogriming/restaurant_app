@@ -38,6 +38,12 @@ class HomeBottomNavBar extends StatelessWidget {
         'icon': Icons.person_outline_rounded,
         'activeIcon': Icons.person_rounded,
       },
+      {
+        'labelEn': 'Notifications',
+        'labelAr': 'الإشعارات',
+        'icon': Icons.notifications_none_rounded,
+        'activeIcon': Icons.notifications_rounded,
+      },
     ];
 
     return Container(
@@ -62,36 +68,40 @@ class HomeBottomNavBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: List.generate(items.length, (index) {
                   final isSelected = index == currentIndex;
                   final item = items[index];
                   final label = isArabic ? item['labelAr'] : item['labelEn'];
                   final iconData = (isSelected ? item['activeIcon'] : item['icon']) as IconData;
 
-                  return InkWell(
-                    onTap: () => onTap(index),
-                    borderRadius: BorderRadius.circular(16),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            iconData,
-                            size: 24,
-                            color: isSelected ? AppColor.primary : const Color(0xFF9EA3B0),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            label,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  return Expanded(
+                    child: InkWell(
+                      onTap: () => onTap(index),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              iconData,
+                              size: 24,
                               color: isSelected ? AppColor.primary : const Color(0xFF9EA3B0),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(
+                              label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                color: isSelected ? AppColor.primary : const Color(0xFF9EA3B0),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );

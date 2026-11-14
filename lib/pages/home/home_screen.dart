@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:restaurant/core/app_language.dart';
 import 'package:restaurant/core/theam_color.dart';
+import 'package:restaurant/models/product_model.dart';
+import 'package:restaurant/routers/app_routes.dart';
+import 'package:restaurant/widgets/cart_badge_icon.dart';
 import 'package:restaurant/widgets/category_card.dart';
 import 'package:restaurant/widgets/custom_search_bar.dart';
 import 'package:restaurant/widgets/custom_snackbar.dart';
 import 'package:restaurant/widgets/delivery_location_header.dart';
 import 'package:restaurant/widgets/home_bottom_nav_bar.dart';
 import 'package:restaurant/widgets/restaurant_card.dart';
+import 'package:restaurant/widgets/user_account_drawer.dart';
 
 /// Data model representing a Category
 class CategoryModel {
@@ -96,7 +101,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late bool _isArabic;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool get _isArabic => AppLanguage.isArabic;
   int _selectedCategoryIndex = -1; // -1 shows all by default, or tap any category to filter
   int _currentNavIndex = 0;
   String _searchQuery = '';
@@ -245,21 +251,9 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _isArabic = widget.initialIsArabic;
-  }
-
-  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
-  }
-
-  void _toggleLanguage() {
-    setState(() {
-      _isArabic = !_isArabic;
-    });
   }
 
   void _toggleFavorite(int index) {
@@ -451,188 +445,231 @@ class _HomeScreenState extends State<HomeScreen> {
     return list;
   }
 
+  ProductModel _getProductForRestaurant(RestaurantModel item) {
+    final samples = ProductModel.sampleProducts;
+    return samples.firstWhere(
+      (p) => p.imagePath == item.imagePath || p.id.contains(item.id),
+      orElse: () => ProductModel(
+        id: 'prod_${item.id}',
+        nameEn: item.title,
+        nameAr: item.titleAr,
+        imagePath: item.imagePath,
+        price: item.priceRange.contains('\$\$\$') ? 1500.0 : 45.0,
+        rating: item.rating,
+        reviewCount: item.ratingCount,
+        deliveryTimeEn: item.deliveryTimeEn,
+        deliveryTimeAr: item.deliveryTimeAr,
+        descriptionEn:
+            'Delicious culinary creation prepared with fresh ingredients and extraordinary care.',
+        descriptionAr:
+            'وجبة شهية ومميزة محضرة بعناية من أفضل المكونات الطازجة والمختارة يومياً.',
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final textDirection = _isArabic ? TextDirection.rtl : TextDirection.ltr;
-    final filteredList = _filteredRestaurants;
+    return ListenableBuilder(
+      listenable: AppLanguage.currentLocale,
+      builder: (context, _) {
+        final textDirection = _isArabic ? TextDirection.rtl : TextDirection.ltr;
+        final filteredList = _filteredRestaurants;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.white,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-      child: Directionality(
-        textDirection: textDirection,
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          body: SafeArea(
-            bottom: false,
-            child: CustomScrollView(
-              slivers: [
-                // Top App Header: Location & Language Switcher
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      left: 20.0,
-                      right: 20.0,
-                      top: 12.0,
-                      bottom: 16.0,
-                    ),
-                    child: DeliveryLocationHeader(
-                      label: _isArabic ? 'التوصيل إلى' : 'Delivering to',
-                      location: _isArabic ? 'الموقع الحالي' : 'Current location',
-                      onTap: _showLocationPicker,
-                      trailing: IconButton(
-                        tooltip: _isArabic ? 'Switch to English' : 'التحويل للعربية',
-                        onPressed: _toggleLanguage,
-                        icon: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColor.surface,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.grey.shade200),
-                          ),
-                          child: Text(
-                            _isArabic ? 'EN' : 'عربي',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: AppColor.primary,
-                            ),
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light,
+            systemNavigationBarColor: Colors.white,
+            systemNavigationBarIconBrightness: Brightness.dark,
+          ),
+          child: Directionality(
+            textDirection: textDirection,
+            child: Scaffold(
+              key: _scaffoldKey,
+              drawer: const UserAccountDrawer(),
+              endDrawer: const UserAccountDrawer(),
+              backgroundColor: Colors.white,
+              body: SafeArea(
+                bottom: false,
+                child: CustomScrollView(
+                  slivers: [
+                    // Top App Header: Location
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 20.0,
+                          right: 20.0,
+                          top: 12.0,
+                          bottom: 16.0,
+                        ),
+                        child: DeliveryLocationHeader(
+                          label: _isArabic ? 'التوصيل إلى' : 'Delivering to',
+                          location: _isArabic ? 'الموقع الحالي' : 'Current location',
+                          onTap: _showLocationPicker,
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const CartBadgeIcon(size: 40),
+                              const SizedBox(width: 8),
+                              InkWell(
+                                onTap: () {
+                                  _scaffoldKey.currentState?.openDrawer();
+                                },
+                                borderRadius: BorderRadius.circular(24),
+                                child: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: const BoxDecoration(
+                                    color: AppColor.primary,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Color(0x33F55B61),
+                                        blurRadius: 6,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.person_rounded,
+                                      color: Colors.white,
+                                      size: 22,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
 
-                // Search Bar
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: CustomSearchBar(
-                      hintText: _isArabic ? 'ابحث عن الوجبات أو المطاعم' : 'Search foods',
-                      controller: _searchController,
-                      onChanged: (val) {
-                        setState(() {
-                          _searchQuery = val;
-                        });
-                      },
-                      onFilterTap: _showFilterSheet,
-                    ),
-                  ),
-                ),
-
-                const SliverToBoxAdapter(child: SizedBox(height: 22)),
-
-                // Horizontal Categories Scroll
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 108,
-                    child: ListView.separated(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _categories.length,
-                      separatorBuilder: (_, _) => const SizedBox(width: 14),
-                      itemBuilder: (context, index) {
-                        final cat = _categories[index];
-                        final isSelected = index == _selectedCategoryIndex;
-
-                        return CategoryCard(
-                          title: _isArabic ? cat.nameAr : cat.nameEn,
-                          imagePath: cat.imagePath,
-                          customIcon: cat.customIcon,
-                          isSelected: isSelected,
-                          onTap: () {
+                    // Search Bar
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: CustomSearchBar(
+                          hintText: _isArabic ? 'ابحث عن الوجبات أو المطاعم' : 'Search foods',
+                          controller: _searchController,
+                          onChanged: (val) {
                             setState(() {
-                              if (_selectedCategoryIndex == index) {
-                                _selectedCategoryIndex = -1;
-                              } else {
-                                _selectedCategoryIndex = index;
-                              }
+                              _searchQuery = val;
                             });
                           },
-                        );
-                      },
+                          onFilterTap: _showFilterSheet,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
 
-                const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                    const SliverToBoxAdapter(child: SizedBox(height: 22)),
 
-                // Restaurant Cards List
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final item = filteredList[index];
-                        return RestaurantCard(
-                          title: _isArabic ? item.titleAr : item.title,
-                          imagePath: item.imagePath,
-                          rating: item.rating,
-                          ratingCount: item.ratingCount,
-                          category: _isArabic ? item.categoryAr : item.categoryEn,
-                          cuisine: _isArabic ? item.cuisineAr : item.cuisineEn,
-                          priceRange: item.priceRange,
-                          deliveryTime: _isArabic
-                              ? item.deliveryTimeAr
-                              : item.deliveryTimeEn,
-                          isFavorite: item.isFavorite,
-                          onFavoriteTap: () => _toggleFavorite(index),
-                          onTap: () {
-                            showAppSnackbar(
-                              context,
-                              _isArabic
-                                  ? 'تم اختيار ${item.titleAr}'
-                                  : 'Selected ${item.title}',
-                              type: SnackBarType.success,
+                    // Horizontal Categories Scroll
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: 108,
+                        child: ListView.separated(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _categories.length,
+                          separatorBuilder: (_, _) => const SizedBox(width: 14),
+                          itemBuilder: (context, index) {
+                            final cat = _categories[index];
+                            final isSelected = index == _selectedCategoryIndex;
+
+                            return CategoryCard(
+                              title: _isArabic ? cat.nameAr : cat.nameEn,
+                              imagePath: cat.imagePath,
+                              customIcon: cat.customIcon,
+                              isSelected: isSelected,
+                              onTap: () {
+                                setState(() {
+                                  if (_selectedCategoryIndex == index) {
+                                    _selectedCategoryIndex = -1;
+                                  } else {
+                                    _selectedCategoryIndex = index;
+                                  }
+                                });
+                              },
                             );
                           },
-                        );
-                      },
-                      childCount: filteredList.length,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
 
-                // Bottom spacer for scroll comfort above bottom navigation bar
-                const SliverToBoxAdapter(child: SizedBox(height: 16)),
-              ],
+                    const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+                    // Restaurant Cards List
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final item = filteredList[index];
+                            return RestaurantCard(
+                              title: _isArabic ? item.titleAr : item.title,
+                              imagePath: item.imagePath,
+                              rating: item.rating,
+                              ratingCount: item.ratingCount,
+                              category: _isArabic ? item.categoryAr : item.categoryEn,
+                              cuisine: _isArabic ? item.cuisineAr : item.cuisineEn,
+                              priceRange: item.priceRange,
+                              deliveryTime: _isArabic
+                                  ? item.deliveryTimeAr
+                                  : item.deliveryTimeEn,
+                              isFavorite: item.isFavorite,
+                              onFavoriteTap: () => _toggleFavorite(index),
+                              onTap: () {
+                                final product = _getProductForRestaurant(item);
+                                Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.productDetail,
+                                  arguments: product,
+                                );
+                              },
+                            );
+                          },
+                          childCount: filteredList.length,
+                        ),
+                      ),
+                    ),
+
+                    // Bottom spacer for scroll comfort above bottom navigation bar
+                    const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                  ],
+                ),
+              ),
+              bottomNavigationBar: HomeBottomNavBar(
+                currentIndex: _currentNavIndex,
+                isArabic: _isArabic,
+                onTap: (index) {
+                  setState(() {
+                    _currentNavIndex = index;
+                  });
+                  if (index == 1) {
+                    // Tapped Offers tab
+                    setState(() {
+                      _selectedCategoryIndex = 0;
+                    });
+                    showAppSnackbar(
+                      context,
+                      _isArabic ? 'قسم العروض والخصومات 🔥' : 'Offers & Discounts 🔥',
+                      type: SnackBarType.info,
+                    );
+                  } else if (index == 2) {
+                    // Tapped Account tab: open the User Account Drawer
+                    _scaffoldKey.currentState?.openDrawer();
+                  } else if (index == 3) {
+                    // Tapped Notifications tab
+                    Navigator.pushNamed(context, AppRoutes.notifications);
+                  }
+                },
+              ),
             ),
           ),
-          bottomNavigationBar: HomeBottomNavBar(
-            currentIndex: _currentNavIndex,
-            isArabic: _isArabic,
-            onTap: (index) {
-              setState(() {
-                _currentNavIndex = index;
-              });
-              if (index == 1) {
-                // Tapped Offers tab
-                setState(() {
-                  _selectedCategoryIndex = 0;
-                });
-                showAppSnackbar(
-                  context,
-                  _isArabic ? 'قسم العروض والخصومات 🔥' : 'Offers & Discounts 🔥',
-                  type: SnackBarType.info,
-                );
-              } else if (index == 2) {
-                // Tapped Account tab
-                showAppSnackbar(
-                  context,
-                  _isArabic ? 'صفحة الحساب الشخصي' : 'Account & Profile',
-                  type: SnackBarType.info,
-                );
-              }
-            },
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
