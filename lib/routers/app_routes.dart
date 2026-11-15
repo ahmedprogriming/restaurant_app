@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant/models/product_model.dart';
+import 'package:restaurant/pages/account/change_password_screen.dart';
 import 'package:restaurant/pages/account/favorites_screen.dart';
 import 'package:restaurant/pages/account/notifications_screen.dart';
 import 'package:restaurant/pages/account/user_account_screen.dart';
@@ -22,6 +23,7 @@ class AppRoutes {
   static const String register = '/register';
   static const String login = '/login';
   static const String forgotPassword = '/forgot-password';
+  static const String changePassword = '/change-password';
   static const String account = '/account';
   static const String favorites = '/favorites';
   static const String notifications = '/notifications';
@@ -84,6 +86,17 @@ class AppRoutes {
             return FadeTransition(opacity: animation, child: child);
           },
           transitionDuration: const Duration(milliseconds: 350),
+        );
+
+      case changePassword:
+        return PageRouteBuilder(
+          settings: setting,
+          pageBuilder: (_, animation, secondaryAnimation) =>
+              const ChangePasswordScreen(),
+          transitionsBuilder: (_, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 300),
         );
 
       case home:

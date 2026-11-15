@@ -157,13 +157,21 @@ class UserAccountScreen extends StatelessWidget {
 
                       const SizedBox(height: 20),
 
-                      // 5. Preferences & App Settings
+                      // 5. Security & App Settings
                       _buildSectionHeader(
-                        isArabic ? 'الإعدادات والتفضيلات' : 'Preferences & Settings',
+                        isArabic ? 'الأمان والإعدادات' : 'Security & Settings',
                         isArabic,
                       ),
                       const SizedBox(height: 10),
                       _buildCardContainer([
+                        _buildActionTile(
+                          icon: Icons.lock_outline_rounded,
+                          title: isArabic ? 'تغيير كلمة المرور' : 'Change Password',
+                          subtitle: isArabic ? 'تحديث وتعيين كلمة مرور جديدة' : 'Update your account password',
+                          onTap: () => Navigator.pushNamed(context, AppRoutes.changePassword),
+                          isArabic: isArabic,
+                        ),
+                        const Divider(height: 1, indent: 56, color: Color(0xFFF0F0F0)),
                         _buildSwitchTile(
                           icon: Icons.notifications_active_outlined,
                           title: isArabic ? 'تنبيهات الطلبات' : 'Order Notifications',
@@ -381,17 +389,35 @@ class UserAccountScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                InkWell(
-                  onTap: () => _openEditProfileDialog(context, user, isArabic),
-                  borderRadius: BorderRadius.circular(6),
-                  child: Text(
-                    isArabic ? 'تعديل الملف الشخصي ✏️' : 'Edit Profile ✏️',
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w700,
-                      color: AppColor.primary,
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 6,
+                  children: [
+                    InkWell(
+                      onTap: () => _openEditProfileDialog(context, user, isArabic),
+                      borderRadius: BorderRadius.circular(6),
+                      child: Text(
+                        isArabic ? 'تعديل الملف الشخصي ✏️' : 'Edit Profile ✏️',
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColor.primary,
+                        ),
+                      ),
                     ),
-                  ),
+                    InkWell(
+                      onTap: () => Navigator.pushNamed(context, AppRoutes.changePassword),
+                      borderRadius: BorderRadius.circular(6),
+                      child: Text(
+                        isArabic ? 'تغيير كلمة المرور 🔒' : 'Change Password 🔒',
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColor.primary,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

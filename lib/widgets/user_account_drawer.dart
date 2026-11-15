@@ -120,6 +120,24 @@ class UserAccountDrawer extends StatelessWidget {
                           color: Color(0xFFF0F0F0),
                         ),
 
+                        // تغيير كلمة المرور (Change Password)
+                        _buildDrawerItem(
+                          context: context,
+                          title: isArabic ? 'تغيير كلمة المرور' : 'Change Password',
+                          icon: Icons.lock_outline_rounded,
+                          onTap: () {
+                            Navigator.pop(context); // Close drawer
+                            Navigator.pushNamed(context, AppRoutes.changePassword);
+                          },
+                          isArabic: isArabic,
+                        ),
+
+                        const Divider(
+                          height: 1,
+                          thickness: 1,
+                          color: Color(0xFFF0F0F0),
+                        ),
+
                         // 3. مفضلاتي (My Favorites)
                         _buildDrawerItem(
                           context: context,

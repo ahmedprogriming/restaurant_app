@@ -15,6 +15,10 @@ class CustomRoundedTextField extends StatelessWidget {
   final FocusNode? focusNode;
   final bool enabled;
   final bool autofocus;
+  final Color fillColor;
+  final List<BoxShadow>? boxShadow;
+  final Color borderColor;
+  final double borderRadius;
 
   const CustomRoundedTextField({
     super.key,
@@ -30,18 +34,23 @@ class CustomRoundedTextField extends StatelessWidget {
     this.focusNode,
     this.enabled = true,
     this.autofocus = false,
+    this.fillColor = const Color(0xFFF7F8FA),
+    this.boxShadow,
+    this.borderColor = const Color(0xFFEDEEF2),
+    this.borderRadius = 30.0,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F8FA),
-        borderRadius: BorderRadius.circular(30),
+        color: fillColor,
+        borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
-          color: const Color(0xFFEDEEF2),
+          color: borderColor,
           width: 1.0,
         ),
+        boxShadow: boxShadow,
       ),
       child: TextFormField(
         controller: controller,

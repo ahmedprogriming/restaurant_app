@@ -6,6 +6,7 @@ import 'package:restaurant/main.dart';
 import 'package:restaurant/core/user_state.dart';
 import 'package:restaurant/core/cart_state.dart';
 import 'package:restaurant/models/product_model.dart';
+import 'package:restaurant/pages/account/change_password_screen.dart';
 import 'package:restaurant/pages/account/favorites_screen.dart';
 import 'package:restaurant/pages/account/notifications_screen.dart';
 import 'package:restaurant/pages/account/user_account_screen.dart';
@@ -604,5 +605,83 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(CartState.items.isEmpty, true);
+  });
+
+  testWidgets('ChangePasswordScreen matches reference mockup in Arabic and validates input',
+      (WidgetTester tester) async {
+    AppLanguage.setLocale(const Locale('ar'));
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: ChangePasswordScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Verify Title and 3 Input Fields from screenshot
+    expect(find.text('تغيير كلمة المرور'), findsOneWidget);
+    expect(find.text('كلمة المرور الحالية'), findsOneWidget);
+    expect(find.text('كلمة المرور الجديدة'), findsOneWidget);
+    expect(find.text('تأكيد كلمة المرور'), findsOneWidget);
+    expect(find.text('حفظ'), findsOneWidget);
+    expect(find.byIcon(Icons.chevron_left_rounded), findsOneWidget);
+
+    // Tap Save while empty to trigger validation
+    await tester.tap(find.text('حفظ'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('يرجى إدخال كلمة المرور الحالية'), findsOneWidget);
+
+    // Enter short current password
+    final textFields = find.byType(TextFormField);
+    expect(textFields, findsNWidgets(3));
+
+    await tester.enterText(textFields.at(0), '123456');
+    await tester.enterText(textFields.at(1), 'abcdef');
+    await tester.enterText(textFields.at(2), 'mismatch');
+    await tester.tap(find.text('حفظ'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('كلمة المرور غير متطابقة'), findsOneWidget);
+
+    // Match passwords and save successfully
+    await tester.enterText(textFields.at(2), 'abcdef');
+    await tester.tap(find.text('حفظ'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 1000));
+    await tester.pumpAndSettle();
+
+    expect(find.text('تم تغيير كلمة المرور بنجاح'), findsOneWidget);
+  });
+
+  testWidgets('UserAccountScreen and Drawer navigate to ChangePasswordScreen',
+      (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    AppLanguage.setLocale(const Locale('ar'));
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: UserAccountScreen(),
+        onGenerateRoute: AppRoutes.onGenerateRoute,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Verify change password button is visible in UserAccountScreen
+    final changePasswordTile = find.text('تغيير كلمة المرور');
+    expect(changePasswordTile, findsWidgets);
+
+    // Tap change password
+    await tester.tap(changePasswordTile.first);
+    await tester.pumpAndSettle();
+
+    // Verify we navigated to ChangePasswordScreen
+    expect(find.byType(ChangePasswordScreen), findsOneWidget);
+    expect(find.text('كلمة المرور الحالية'), findsOneWidget);
+    expect(find.text('حفظ'), findsOneWidget);
   });
 }
