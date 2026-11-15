@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant/models/category_model.dart';
 import 'package:restaurant/models/product_model.dart';
 import 'package:restaurant/pages/account/change_password_screen.dart';
 import 'package:restaurant/pages/account/favorites_screen.dart';
@@ -8,6 +9,9 @@ import 'package:restaurant/pages/auth/forgot_password_screen.dart';
 import 'package:restaurant/pages/auth/login_screen.dart';
 import 'package:restaurant/pages/auth/sign_up_screen.dart';
 import 'package:restaurant/pages/cart/cart_screen.dart';
+import 'package:restaurant/pages/category/categories_screen.dart';
+import 'package:restaurant/pages/category/category_products_screen.dart';
+import 'package:restaurant/pages/category/sub_categories_screen.dart';
 import 'package:restaurant/pages/home/home_screen.dart';
 import 'package:restaurant/pages/product/product_detail_screen.dart';
 import 'package:restaurant/pages/splash/splash_screen.dart';
@@ -29,6 +33,9 @@ class AppRoutes {
   static const String notifications = '/notifications';
   static const String productDetail = '/product-detail';
   static const String cart = '/cart';
+  static const String categories = '/categories';
+  static const String subCategories = '/sub-categories';
+  static const String categoryProducts = '/category-products';
 
   static Route<dynamic> onGenerateRoute(RouteSettings setting) {
     switch (setting.name) {
@@ -157,6 +164,53 @@ class AppRoutes {
         return PageRouteBuilder(
           settings: setting,
           pageBuilder: (_, animation, secondaryAnimation) => const CartScreen(),
+          transitionsBuilder: (_, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        );
+
+      case categories:
+        return PageRouteBuilder(
+          settings: setting,
+          pageBuilder: (_, animation, secondaryAnimation) =>
+              const CategoriesScreen(),
+          transitionsBuilder: (_, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        );
+
+      case subCategories:
+        final category = setting.arguments is FoodCategoryModel
+            ? (setting.arguments as FoodCategoryModel)
+            : FoodCategoryModel.sampleCategories[0];
+        return PageRouteBuilder(
+          settings: setting,
+          pageBuilder: (_, animation, secondaryAnimation) =>
+              SubCategoriesScreen(category: category),
+          transitionsBuilder: (_, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        );
+
+      case categoryProducts:
+        final args = setting.arguments;
+        FoodCategoryModel? cat;
+        SubCategoryModel? sub;
+        if (args is SubCategoryModel) {
+          sub = args;
+        } else if (args is FoodCategoryModel) {
+          cat = args;
+        } else if (args is Map<String, dynamic>) {
+          cat = args['category'] as FoodCategoryModel?;
+          sub = args['subCategory'] as SubCategoryModel?;
+        }
+        return PageRouteBuilder(
+          settings: setting,
+          pageBuilder: (_, animation, secondaryAnimation) =>
+              CategoryProductsScreen(category: cat, subCategory: sub),
           transitionsBuilder: (_, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },

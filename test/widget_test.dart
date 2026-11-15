@@ -5,6 +5,7 @@ import 'package:restaurant/core/constant.dart';
 import 'package:restaurant/main.dart';
 import 'package:restaurant/core/user_state.dart';
 import 'package:restaurant/core/cart_state.dart';
+import 'package:restaurant/models/category_model.dart';
 import 'package:restaurant/models/product_model.dart';
 import 'package:restaurant/pages/account/change_password_screen.dart';
 import 'package:restaurant/pages/account/favorites_screen.dart';
@@ -13,6 +14,9 @@ import 'package:restaurant/pages/account/user_account_screen.dart';
 import 'package:restaurant/pages/auth/forgot_password_screen.dart';
 import 'package:restaurant/pages/auth/sign_up_screen.dart';
 import 'package:restaurant/pages/cart/cart_screen.dart';
+import 'package:restaurant/pages/category/categories_screen.dart';
+import 'package:restaurant/pages/category/category_products_screen.dart';
+import 'package:restaurant/pages/category/sub_categories_screen.dart';
 import 'package:restaurant/pages/home/home_screen.dart';
 import 'package:restaurant/pages/product/product_detail_screen.dart';
 import 'package:restaurant/pages/tips/get_started.dart';
@@ -624,7 +628,7 @@ void main() {
     expect(find.text('كلمة المرور الجديدة'), findsOneWidget);
     expect(find.text('تأكيد كلمة المرور'), findsOneWidget);
     expect(find.text('حفظ'), findsOneWidget);
-    expect(find.byIcon(Icons.chevron_left_rounded), findsOneWidget);
+    expect(find.byType(CustomBackButton), findsOneWidget);
 
     // Tap Save while empty to trigger validation
     await tester.tap(find.text('حفظ'));
@@ -683,5 +687,125 @@ void main() {
     expect(find.byType(ChangePasswordScreen), findsOneWidget);
     expect(find.text('كلمة المرور الحالية'), findsOneWidget);
     expect(find.text('حفظ'), findsOneWidget);
+  });
+
+  testWidgets('CategoriesScreen displays categories matching reference Image 1',
+      (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    AppLanguage.setLocale(const Locale('ar'));
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: CategoriesScreen(),
+        onGenerateRoute: AppRoutes.onGenerateRoute,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Verify title matching Image 1
+    expect(find.text('قائمة المأكولات'), findsOneWidget);
+
+    // Verify real categories matching HomeScreen
+    expect(find.text('مأكولات بحرية'), findsOneWidget);
+    expect(find.text('برجر'), findsOneWidget);
+    expect(find.text('بيتزا'), findsOneWidget);
+    expect(find.text('مشاوي'), findsOneWidget);
+    expect(find.text('مقبلات وسلطات'), findsOneWidget);
+
+    // Tap on Seafood category to navigate to SubCategoriesScreen
+    await tester.tap(find.text('مأكولات بحرية'));
+    await tester.pumpAndSettle();
+
+    // Verify SubCategoriesScreen is displayed matching Image 2
+    expect(find.byType(SubCategoriesScreen), findsOneWidget);
+    expect(find.text('مأكولات بحرية'), findsOneWidget);
+    expect(find.text('سمك'), findsOneWidget);
+    expect(find.text('قريدس'), findsOneWidget);
+    expect(find.text('كاليماري'), findsOneWidget);
+  });
+
+  testWidgets('SubCategoriesScreen displays subcategories and counts matching Image 2',
+      (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    AppLanguage.setLocale(const Locale('ar'));
+
+    final seafoodCategory = FoodCategoryModel.sampleCategories.first;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SubCategoriesScreen(category: seafoodCategory),
+        onGenerateRoute: AppRoutes.onGenerateRoute,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Verify Header
+    expect(find.text('مأكولات بحرية'), findsOneWidget);
+
+    // Verify subcategories and counts
+    expect(find.text('سمك'), findsOneWidget);
+    expect(find.text('قريدس'), findsOneWidget);
+    expect(find.text('كاليماري'), findsOneWidget);
+    expect(find.text('10'), findsNWidgets(2)); // Fish: 10, Shrimp: 10
+    expect(find.text('5'), findsOneWidget); // Calamari: 5
+
+    // Tap on 'سمك' to navigate to CategoryProductsScreen
+    await tester.tap(find.text('سمك'));
+    await tester.pumpAndSettle();
+
+    // Verify CategoryProductsScreen matching real products
+    expect(find.byType(CategoryProductsScreen), findsOneWidget);
+    expect(find.text('سمك'), findsOneWidget);
+    expect(find.text('سمك سلمون مشوي'), findsOneWidget);
+  });
+
+  testWidgets('CategoryProductsScreen displays products and toggles favorites matching Image 3',
+      (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    AppLanguage.setLocale(const Locale('ar'));
+
+    final seafoodCategory = FoodCategoryModel.sampleCategories.first;
+    final fishSubCategory = seafoodCategory.subcategories.first;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: CategoryProductsScreen(
+          category: seafoodCategory,
+          subCategory: fishSubCategory,
+          title: 'سمك مشوي',
+        ),
+        onGenerateRoute: AppRoutes.onGenerateRoute,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Verify AppBar Title matching Image 3 ("سمك مشوي")
+    expect(find.text('سمك مشوي'), findsOneWidget);
+
+    // Verify real products with their names and descriptions
+    expect(find.text('سمك سلمون مشوي'), findsOneWidget);
+    expect(find.text('سمك فيليه مقلي مقرمش'), findsOneWidget);
+
+    // Verify favorite heart icons are present
+    final heartButtons = find.byType(IconButton);
+    expect(heartButtons, findsWidgets);
+
+    // Tap favorite on an unliked item
+    await tester.tap(heartButtons.at(1));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
   });
 }

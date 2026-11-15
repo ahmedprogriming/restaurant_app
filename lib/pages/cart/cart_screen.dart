@@ -5,6 +5,7 @@ import 'package:restaurant/core/cart_state.dart';
 import 'package:restaurant/core/theam_color.dart';
 import 'package:restaurant/models/cart_item_model.dart';
 import 'package:restaurant/routers/app_routes.dart';
+import 'package:restaurant/widgets/custom_back_button.dart';
 import 'package:restaurant/widgets/custom_snackbar.dart';
 
 /// Clean Architecture Shopping Cart Screen ("سلة التسوق")
@@ -212,15 +213,9 @@ class _CartScreenState extends State<CartScreen> {
               backgroundColor: Colors.white,
               elevation: 0,
               surfaceTintColor: Colors.transparent,
-              leading: IconButton(
-                icon: Icon(
-                  isArabic
-                      ? Icons.arrow_forward_ios_rounded
-                      : Icons.arrow_back_ios_new_rounded,
-                  color: AppColor.textDark,
-                  size: 20,
-                ),
+              leading: CustomBackButton(
                 onPressed: () => Navigator.pop(context),
+                isRtl: isArabic,
               ),
               title: ValueListenableBuilder<List<CartItemModel>>(
                 valueListenable: CartState.itemsNotifier,

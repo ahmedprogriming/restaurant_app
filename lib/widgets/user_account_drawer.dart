@@ -98,6 +98,24 @@ class UserAccountDrawer extends StatelessWidget {
                           color: Color(0xFFF0F0F0),
                         ),
 
+                        // قائمة المأكولات (Food Categories)
+                        _buildDrawerItem(
+                          context: context,
+                          title: isArabic ? 'قائمة المأكولات' : 'Food Categories',
+                          icon: Icons.restaurant_menu_rounded,
+                          onTap: () {
+                            Navigator.pop(context); // Close drawer
+                            Navigator.pushNamed(context, AppRoutes.categories);
+                          },
+                          isArabic: isArabic,
+                        ),
+
+                        const Divider(
+                          height: 1,
+                          thickness: 1,
+                          color: Color(0xFFF0F0F0),
+                        ),
+
                         // 2. حسابي (My Account)
                         _buildDrawerItem(
                           context: context,

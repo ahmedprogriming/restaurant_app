@@ -1,12 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant/core/app_language.dart';
 import 'package:restaurant/core/theam_color.dart';
 
-/// A reusable minimalist back button matching the reference design.
+/// A reusable minimalist back button responding dynamically to language direction:
+/// - In Arabic (RTL): Guaranteed to point to the right (>)
+/// - In English (LTR): Guaranteed to point to the left (<)
 class CustomBackButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Color color;
   final double size;
   final bool? isRtl;
+
+  // Explicit unmirrored chevron glyphs to avoid double-mirroring by Flutter's RTL auto-transform:
+  // 0xf63a is chevron_left (<)
+  // 0xf63b is chevron_right (>)
+  static const IconData chevronLeft = IconData(
+    0xf63a,
+    fontFamily: 'MaterialIcons',
+    matchTextDirection: false,
+  );
+  static const IconData chevronRight = IconData(
+    0xf63b,
+    fontFamily: 'MaterialIcons',
+    matchTextDirection: false,
+  );
 
   const CustomBackButton({
     super.key,
@@ -18,21 +35,26 @@ class CustomBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool rtl = isRtl ?? (Directionality.of(context) == TextDirection.rtl);
+    return ListenableBuilder(
+      listenable: AppLanguage.currentLocale,
+      builder: (context, _) {
+        final bool rtl = isRtl ?? AppLanguage.isArabic;
 
-    return InkWell(
-      onTap: onPressed ?? () => Navigator.of(context).maybePop(),
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        width: 42,
-        height: 42,
-        alignment: Alignment.center,
-        child: Icon(
-          rtl ? Icons.arrow_forward_ios_rounded : Icons.chevron_left_rounded,
-          size: rtl ? size - 4 : size + 4,
-          color: color,
-        ),
-      ),
+        return InkWell(
+          onTap: onPressed ?? () => Navigator.of(context).maybePop(),
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            width: 42,
+            height: 42,
+            alignment: Alignment.center,
+            child: Icon(
+              rtl ? chevronRight : chevronLeft,
+              size: size + 4,
+              color: color,
+            ),
+          ),
+        );
+      },
     );
   }
 }

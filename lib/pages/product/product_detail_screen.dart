@@ -6,6 +6,7 @@ import 'package:restaurant/core/theam_color.dart';
 import 'package:restaurant/models/product_model.dart';
 import 'package:restaurant/routers/app_routes.dart';
 import 'package:restaurant/widgets/cart_badge_icon.dart';
+import 'package:restaurant/widgets/custom_back_button.dart';
 import 'package:restaurant/widgets/custom_snackbar.dart';
 
 /// Clean Architecture Product Detail Screen faithfully implementing
@@ -265,11 +266,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              // Floating Back Button matching reference mockups
+                              // Floating Back Button matching language logic
                               _buildFloatingButton(
                                 icon: isArabic
-                                    ? Icons.arrow_forward_ios_rounded
-                                    : Icons.arrow_back_ios_new_rounded,
+                                    ? CustomBackButton.chevronRight
+                                    : CustomBackButton.chevronLeft,
                                 iconColor: AppColor.primary,
                                 onTap: () => Navigator.pop(context),
                               ),

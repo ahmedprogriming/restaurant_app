@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:restaurant/core/app_language.dart';
 import 'package:restaurant/core/theam_color.dart';
+import 'package:restaurant/widgets/custom_back_button.dart';
 import 'package:restaurant/widgets/custom_primary_button.dart';
 import 'package:restaurant/widgets/custom_rounded_text_field.dart';
 import 'package:restaurant/widgets/custom_snackbar.dart';
@@ -328,27 +329,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     );
   }
 
-  /// Top Bar with Left Chevron (<) matching the reference screenshot exactly.
+  /// Top Bar with Directional Back Chevron responding dynamically to language logic
   Widget _buildTopBar(bool isArabic) {
     return Align(
-      // The screenshot clearly shows the back arrow on the left side of the top bar
-      alignment: Alignment.centerLeft,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => Navigator.of(context).maybePop(),
-          borderRadius: BorderRadius.circular(24),
-          child: Container(
-            width: 44,
-            height: 44,
-            alignment: Alignment.center,
-            child: const Icon(
-              Icons.chevron_left_rounded,
-              size: 30,
-              color: AppColor.textDark,
-            ),
-          ),
-        ),
+      alignment: AlignmentDirectional.centerStart,
+      child: CustomBackButton(
+        isRtl: isArabic,
+        onPressed: () => Navigator.of(context).maybePop(),
       ),
     );
   }
